@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toolkit - Hackathon Catalyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        /* ----------------------
+        GLOBAL & CORE STYLES 
+        ----------------------
+       */
+        body {
+            background-image: url('/static/images/Generated Image October 02, 2025 - 10_05PM.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-color: rgba(15, 23, 42, 0.5);
+            background-blend-mode: multiply;
+            font-family: 'Major Mono Display', monospace;
+        }
+
+        /* Import the new hacker-style font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
+
+        /* Existing animated gradient for the title */
+        .animated-gradient { background-size: 200% auto; animation: gradient-animation 5s ease infinite; }
+        @keyframes gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        
+        /* Enhanced selected card style */
+        .idea-card.selected { 
+            border-color: #2dd4bf; 
+            transform: scale(1.02); 
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
+        }
+
+        /* Styles for the copy button feedback */
+        .copy-btn .copy-icon { display: block; }
+        .copy-btn .check-icon { display: none; }
+        .copy-btn.copied .copy-icon { display: none; }
+        .copy-btn.copied .check-icon { display: block; }
+
+       
+        /* Glitch animation for the main title */
+        @keyframes glitch {
+            0% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(0); }
+            10% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(-2px); }
+            20% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(2px); }
+            30% { text-shadow: -2px -2px #48bb78, 2px 2px #60a5fa; transform: translate(0); }
+            40% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(-2px); }
+            50% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(2px); }
+            60% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(0); }
+            70% { text-shadow: -2px -2px #48bb78, 2px 2px #60a5fa; transform: translate(2px); }
+            80% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(-2px); }
+            90% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(2px); }
+            100% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(0); }
+        }
+
+        /* Pulsing glow for the timer numbers */
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 5px #2dd4bf, 0 0 10px #2dd4bf; }
+            50% { text-shadow: 0 0 10px #2dd4bf, 0 0 20px #2dd4bf; }
+        }
+
+        /* Glowing border effect for containers */
+        @keyframes neon-border {
+            0%, 100% { border-color: rgba(45, 212, 191, 0.4); box-shadow: 0 0 5px rgba(45, 212, 191, 0.2); }
+            50% { border-color: rgba(45, 212, 191, 0.8); box-shadow: 0 0 10px rgba(45, 212, 191, 0.4); }
+        }
+
+        /* Pulsing cursor effect for the subtitle */
+        @keyframes pulse-cursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Styles for a terminal-like appearance on inputs and selects */
+        .terminal-input {
+            background-color: rgba(30, 41, 59, 0.8) !important;
+            border: 1px solid #2dd4bf;
+            color: #2dd4bf;
+            font-family: 'Major Mono Display', monospace;
+            transition: all 0.3s ease-in-out;
+            box-shadow: inset 0 0 5px rgba(45, 212, 191, 0.5);
+        }
+        .terminal-input:focus {
+            box-shadow: inset 0 0 10px rgba(45, 212, 191, 0.8), 0 0 15px rgba(45, 212, 191, 0.5);
+            outline: none;
+        }
+
+        /* Custom glow-on-hover effect for the timer items */
+        .timer-item-container:hover .timer-item {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-white font-sans">
+    <nav class="glass-container py-4 mb-8 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <a href="/" class="text-xl font-bold text-white glitch-text">Hackathon Catalyst</a>
+            <div>
+                <a href="/" class="shimmer-btn bg-slate-700 text-white px-3 py-2 rounded-md">Toolkit</a>
+                <a href="/chat" class="shimmer-btn text-slate-300 hover:text-white px-3 py-2 rounded-md">Team Chat</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-teal-400 to-indigo-500 animated-gradient glitch-text" data-aos="fade-down">Hackathon Catalyst 🚀</h1>
+            <p id="typing-subtitle" class="text-slate-400 mt-4 text-lg md:text-xl pulsing-cursor" data-aos="fade-down" data-aos-delay="100"></p>
+        </header>
+
+        <section class="glass-container terminal-container p-6 rounded-xl shadow-lg mb-12" data-aos="zoom-in">
+            <div id="timer-display" class="bg-gradient-to-r from-blue-600 to-teal-500 text-white p-6 rounded-lg text-center mb-4">
+                <h2 class="text-2xl font-bold mb-2">Hackathon Begins In:</h2>
+                <div id="countdown-timer" class="flex justify-center gap-4 md:gap-8 text-2xl md:text-4xl font-mono">
+                    <div class="timer-item-container"><span id="days" class="timer-item">--</span><span class="text-sm block">Days</span></div>
+                    <div class="timer-item-container"><span id="hours" class="timer-item">--</span><span class="text-sm block">Hours</span></div>
+                    <div class="timer-item-container"><span id="minutes" class="timer-item">--</span><span class="text-sm block">Minutes</span></div>
+                    <div class="timer-item-container"><span id="seconds" class="timer-item">--</span><span class="text-sm block">Seconds</span></div>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <input type="datetime-local" id="hackathon-date-input" class="terminal-input w-full rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <button id="set-timer-btn" class="shimmer-btn bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg whitespace-nowrap w-full sm:w-auto">Set Timer</button>
+                <button id="clear-timer-btn" class="shimmer-btn bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded-lg whitespace-nowrap w-full sm:w-auto">Clear</button>
+            </div>
+        </section>
+
+        <section class="glass-container terminal-container p-6 rounded-xl shadow-lg mb-12" data-aos="fade-up">
+            <h2 class="text-2xl font-semibold mb-4 text-slate-100">1. Generate Project Ideas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                <select id="theme-select" class="terminal-input w-full rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+    <option value="" disabled selected>-- Select a Theme --</option>
+    {% for theme in themes %}
+        <option value="{{ theme.id }}">{{ theme.name }}</option>
+    {% endfor %}
+</select>
+                <select id="difficulty-select" class="terminal-input w-full rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="">-- Any Difficulty --</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+                <button id="generate-btn" class="shimmer-btn bg-blue-600 hover:bg-blue-700 disabled:bg-slate-500 font-bold py-3 px-6 rounded-lg whitespace-nowrap w-full transition-colors">Generate!</button>
+            </div>
+        </section>
+
+        <section id="results-container" class="opacity-0 transition-opacity duration-500">
+             <h2 class="text-2xl font-semibold mb-4 text-slate-100">2. Select an Idea to Reveal its Kit</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="ideas-list" class="space-y-4">
+                </div>
+                <div id="kit-details" class="glass-container terminal-container p-6 rounded-lg sticky top-28 h-fit transition-opacity duration-300">
+                    <p class="text-slate-500 text-center">Click on an idea to the left to see its details.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
+    <script>
+        AOS.init({ duration: 600, once: true });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let fullGeneratedData = []; 
+            
+            // TypeIt and Countdown Timer logic (unchanged)
+            new TypeIt("#typing-subtitle", { strings: "Your instant idea, stack, and collaboration hub.", speed: 50, waitUntilVisible: true }).go();
+            let timerInterval;
+            const timerDisplay = { days: document.getElementById("days"), hours: document.getElementById("hours"), minutes: document.getElementById("minutes"), seconds: document.getElementById("seconds") };
+            function startCountdown(targetDate) {
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = targetDate - now;
+                    if (distance < 0) {
+                        clearInterval(timerInterval);
+                        document.getElementById("countdown-timer").innerHTML = '<h2 class="text-2xl font-bold">The Hackathon is LIVE!</h2>';
+                        return;
+                    }
+                    timerDisplay.days.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                    timerDisplay.hours.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+                    timerDisplay.minutes.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                    timerDisplay.seconds.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                }, 1000);
+            }
+            document.getElementById('set-timer-btn').addEventListener('click', () => {
+                const dateValue = document.getElementById('hackathon-date-input').value;
+                if (dateValue) {
+                    const targetDate = new Date(dateValue).getTime();
+                    localStorage.setItem('hackathonTargetDate', targetDate);
+                    startCountdown(targetDate);
+                }
+            });
+            document.getElementById('clear-timer-btn').addEventListener('click', () => {
+                localStorage.removeItem('hackathonTargetDate');
+                if (timerInterval) clearInterval(timerInterval);
+                Object.values(timerDisplay).forEach(el => el.innerText = '--');
+            });
+            const savedDate = localStorage.getItem('hackathonTargetDate');
+            if (savedDate) { startCountdown(parseInt(savedDate)); }
+
+            // --- Main Application Logic ---
+            const generateBtn = document.getElementById('generate-btn');
+            const themeSelect = document.getElementById('theme-select');
+            const difficultySelect = document.getElementById('difficulty-select');
+            const resultsContainer = document.getElementById('results-container');
+            const ideasListDiv = document.getElementById('ideas-list');
+            const kitDetailsDiv = document.getElementById('kit-details');
+
+            // --- INTERACTIVITY UPGRADE 1: Skeleton Loader ---
+            function showSkeletonLoaders() {
+                ideasListDiv.innerHTML = ''; // Clear previous results
+                for (let i = 0; i < 3; i++) {
+                    const skeletonCard = document.createElement('div');
+                    skeletonCard.className = 'bg-slate-800 p-5 rounded-lg border border-slate-700 animate-pulse';
+                    skeletonCard.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="h-4 bg-slate-700 rounded w-3/4"></div>
+                            <div class="h-3 bg-slate-700 rounded w-1/6"></div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-2 bg-slate-700 rounded"></div>
+                            <div class="h-2 bg-slate-700 rounded w-5/6"></div>
+                        </div>
+                    `;
+                    ideasListDiv.appendChild(skeletonCard);
+                }
+            }
+
+            generateBtn.addEventListener('click', async () => {
+                const theme_id = themeSelect.value;
+                if (!theme_id) return;
+                
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Generating...';
+                
+                showSkeletonLoaders(); // Show skeleton loaders instead of text
+                
+                kitDetailsDiv.innerHTML = `<p class="text-slate-500 text-center">Click on an idea to the left to see its details.</p>`;
+                resultsContainer.classList.remove('opacity-0');
+
+                try {
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ theme_id: theme_id, difficulty: difficultySelect.value })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        fullGeneratedData = data;
+                        displayIdeas(data);
+                    } else {
+                        const err = await response.json();
+                        ideasListDiv.innerHTML = `<p class="text-red-400 text-center py-10">${err.error}</p>`;
+                    }
+                } catch (error) {
+                    ideasListDiv.innerHTML = `<p class="text-red-400 text-center py-10">An error occurred. Please try again.</p>`;
+                }
+
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate!';
+            });
+
+            function displayIdeas(data) {
+                ideasListDiv.innerHTML = '';
+                if (!data || data.length === 0) {
+                    ideasListDiv.innerHTML = `<p class="text-slate-500 text-center py-10">No ideas found. Try a different filter.</p>`;
+                    return;
+                }
+                
+                data.forEach((ideaPackage, index) => {
+                    const idea = ideaPackage.idea;
+                    const difficultyColors = { 'Beginner': 'text-green-400', 'Intermediate': 'text-yellow-400', 'Advanced': 'text-red-400' };
+                    const difficultyBadge = `<span class="text-sm font-bold ${difficultyColors[idea.difficulty] || 'text-gray-400'}">${idea.difficulty}</span>`;
+
+                    const card = document.createElement('div');
+                    card.className = 'idea-card bg-slate-800 p-5 rounded-lg border border-slate-700 hover:border-teal-500 cursor-pointer transition-all duration-300';
+                    card.dataset.index = index;
+                    
+                    // --- INTERACTIVITY UPGRADE 2: Staggered Animations ---
+                    card.setAttribute('data-aos', 'fade-up');
+                    card.setAttribute('data-aos-delay', index * 100);
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center mb-2 pointer-events-none">
+                            <h3 class="text-lg font-bold text-blue-400">💡 ${idea.title}</h3>
+                            ${difficultyBadge}
+                        </div>
+                        <p class="text-slate-400 text-sm pointer-events-none">${idea.description}</p>
+                    `;
+                    ideasListDiv.appendChild(card);
+                });
+
+                // Refresh AOS to detect the new elements
+                setTimeout(() => AOS.refresh(), 100);
+            }
+
+            ideasListDiv.addEventListener('click', (e) => {
+                const card = e.target.closest('.idea-card');
+                if (!card || fullGeneratedData.length === 0) return;
+
+                const index = card.dataset.index;
+                const selectedPackage = fullGeneratedData[index];
+                
+                document.querySelectorAll('.idea-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+
+                displayKitDetails(selectedPackage.kit);
+            });
+
+            function displayKitDetails(kit) {
+                const apiCard = kit.api
+                    ? `<a href="${kit.api.url}" target="_blank" class="font-semibold text-indigo-400 hover:underline">${kit.api.name}</a><p class="text-slate-400 mt-1 text-sm">${kit.api.description}</p>`
+                    : '<p class="text-slate-400 text-sm">No specific API recommendation.</p>';
+
+                // --- INTERACTIVITY UPGRADE 3: Copy-to-Clipboard Buttons ---
+                const stackDetails = `Frontend: ${kit.stack.frontend}\nBackend: ${kit.stack.backend}\nDatabase: ${kit.stack.database}`;
+                const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 copy-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`;
+                const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 check-icon text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
+
+                const newKitHTML = `
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-teal-400">⚙️ Tech Stack</h3>
+                                <button class="copy-btn bg-slate-700 hover:bg-slate-600 p-2 rounded-md transition-colors" data-copy-text="${stackDetails}" title="Copy Stack">
+                                    ${copyIcon}${checkIcon}
+                                </button>
+                            </div>
+                            <p class="text-slate-300 text-sm"><strong class="font-semibold">Frontend:</strong> ${kit.stack.frontend}</p>
+                            <p class="text-slate-300 text-sm"><strong class="font-semibold">Backend:</strong> ${kit.stack.backend}</p>
+                            <p class="text-slate-300 text-sm"><strong class="font-semibold">Database:</strong> ${kit.stack.database}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-indigo-400 mb-2">🔌 Suggested API</h3>
+                            ${apiCard}
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-amber-400">🏆 Pitch Tip</h3>
+                                <button class="copy-btn bg-slate-700 hover:bg-slate-600 p-2 rounded-md transition-colors" data-copy-text="${kit.tip.tip}" title="Copy Tip">
+                                    ${copyIcon}${checkIcon}
+                                </button>
+                            </div>
+                            <p class="text-slate-400 italic text-sm">"${kit.tip.tip}"</p>
+                        </div>
+                    </div>
+                `;
+
+                // Fade out, update, fade in for a smooth transition
+                kitDetailsDiv.classList.add('opacity-0');
+                setTimeout(() => {
+                    kitDetailsDiv.innerHTML = newKitHTML;
+                    kitDetailsDiv.classList.remove('opacity-0');
+                }, 150);
+            }
+
+            kitDetailsDiv.addEventListener('click', (e) => {
+                const copyBtn = e.target.closest('.copy-btn');
+                if (!copyBtn) return;
+                
+                const textToCopy = copyBtn.dataset.copyText;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

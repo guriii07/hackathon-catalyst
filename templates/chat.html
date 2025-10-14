@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Chat - Hackathon Catalyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- UNIFIED STYLE BLOCK -->
+    <style>
+        /* -----------------------------------------------------------
+        HACKER THEME: CORE & GLOBAL STYLES (UNIFIED)
+        ----------------------------------------------------------- */
+        /* Set consistent background (using the original static image path and dark overlay) */
+        body {
+            background-image: url('/static/images/Generated Image October 02, 2025 - 10_05PM.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-color: rgba(15, 23, 42, 0.5);
+            background-blend-mode: multiply;
+            font-family: 'Major Mono Display', monospace; /* Consistent Font */
+            color: #e2e8f0; 
+        }
+
+        /* Import the new hacker-style font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
+
+        /* Existing animated gradient for the title (from home.html) */
+        .animated-gradient { background-size: 200% auto; animation: gradient-animation 5s ease infinite; }
+        @keyframes gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        
+        /* Enhanced selected card style (from home.html) */
+        .idea-card.selected { 
+            border-color: #2dd4bf; 
+            transform: scale(1.02); 
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
+        }
+
+        /* Styles for the copy button feedback (from home.html) */
+        .copy-btn .copy-icon { display: block; }
+        .copy-btn .check-icon { display: none; }
+        .copy-btn.copied .copy-icon { display: none; }
+        .copy-btn.copied .check-icon { display: block; }
+
+        /*
+        --------------------------
+        UNIFIED HACKER ANIMATION STYLES 
+        --------------------------
+        */
+        /* Glitch animation for the main title/headings */
+        @keyframes glitch {
+            0% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(0); }
+            10% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(-2px); }
+            20% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(2px); }
+            30% { text-shadow: -2px -2px #48bb78, 2px 2px #60a5fa; transform: translate(0); }
+            40% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(-2px); }
+            50% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(2px); }
+            60% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(0); }
+            70% { text-shadow: -2px -2px #48bb78, 2px 2px #60a5fa; transform: translate(2px); }
+            80% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(-2px); }
+            90% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(2px); }
+            100% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(0); }
+        }
+        .glitch-text { animation: glitch 1.5s infinite; } /* Apply this class to headers in chat.html */
+
+        /* Pulsing glow for the timer numbers */
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 5px #2dd4bf, 0 0 10px #2dd4bf; }
+            50% { text-shadow: 0 0 10px #2dd4bf, 0 0 20px #2dd4bf; }
+        }
+
+        /* Glowing border effect for containers (Glassmorphism + Neon) */
+        .glass-container {
+            background-color: rgba(30, 41, 59, 0.6); /* Tailwind's slate-800 with transparency */
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(45, 212, 191, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease-in-out;
+        }
+        @keyframes neon-border {
+            0%, 100% { border-color: rgba(45, 212, 191, 0.4); box-shadow: 0 0 5px rgba(45, 212, 191, 0.2); }
+            50% { border-color: rgba(45, 212, 191, 0.8); box-shadow: 0 0 10px rgba(45, 212, 191, 0.4); }
+        }
+        .neon-border { animation: neon-border 3s ease-in-out infinite; } /* Apply to main sections */
+
+
+        /* Pulsing cursor effect for the subtitle (from home.html) */
+        @keyframes pulse-cursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .pulsing-cursor:after {
+            content: '|';
+            animation: pulse-cursor 1s step-end infinite;
+        }
+
+        /* Styles for a terminal-like appearance on inputs and selects (from home.html) */
+        .terminal-input {
+            background-color: rgba(30, 41, 59, 0.8) !important;
+            border: 1px solid #2dd4bf;
+            color: #2dd4bf;
+            font-family: 'Major Mono Display', monospace;
+            transition: all 0.3s ease-in-out;
+            box-shadow: inset 0 0 5px rgba(45, 212, 191, 0.5);
+        }
+        .terminal-input:focus {
+            box-shadow: inset 0 0 10px rgba(45, 212, 191, 0.8), 0 0 15px rgba(45, 212, 191, 0.5);
+            outline: none;
+        }
+
+        /* Custom glow-on-hover effect for the timer items */
+        .timer-item-container:hover .timer-item {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* Message slide-in animation (unique to chat, but defined here) */
+        @keyframes message-slide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .message-fade-in {
+            animation: message-slide 0.3s ease-out;
+        }
+    </style>
+    <!-- END OF UNIFIED STYLE BLOCK -->
+
+</head>
+<body class="bg-slate-900 text-white font-sans">
+    
+    <nav class="glass-container py-4 mb-8 sticky top-0 z-10 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <a href="/" class="text-xl font-bold text-white glitch-text">Hackathon Catalyst</a>
+            <div>
+                <a href="/" class="text-slate-300 hover:text-white px-3 py-2 rounded-md shimmer-btn">Toolkit</a>
+                <a href="/chat" class="bg-slate-700 text-white px-3 py-2 rounded-md shimmer-btn">Team Chat</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-4xl">
+        <!-- Join Section: Apply glass and neon border -->
+        <div id="join-section" class="glass-container neon-border p-8 rounded-xl shadow-lg text-center transition-opacity duration-500" data-aos="fade-up">
+            <h1 class="text-3xl font-bold mb-4 glitch-text">Secure Team Chat</h1>
+            <p class="text-slate-400 mb-6 font-mono">Create a new private room or join an existing one using the secret code.</p>
+            
+            <div class="space-y-4 max-w-sm mx-auto">
+                <!-- Inputs for joining and creating -->
+                <input type="text" id="username-input" placeholder="Your Name" class="terminal-input w-full rounded-lg p-3">
+                <input type="text" id="room-input" placeholder="Team Room Name (e.g., 'apollo-11')" class="terminal-input w-full rounded-lg p-3">
+                <input type="password" id="secret-code-input" placeholder="Secret Code (Required to Join)" class="terminal-input w-full rounded-lg p-3">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="create-btn" class="bg-blue-600 hover:bg-blue-700 font-bold py-3 px-6 rounded-lg transition-colors shimmer-btn">Create Room</button>
+                    <button id="join-btn" class="bg-teal-500 hover:bg-teal-600 font-bold py-3 px-6 rounded-lg transition-colors shimmer-btn">Join Room</button>
+                </div>
+            </div>
+            <!-- Feedback Message Area -->
+            <p id="feedback-message" class="mt-4 text-sm font-mono text-red-400"></p>
+        </div>
+
+        <!-- Chat Section -->
+        <div id="chat-section" class="hidden opacity-0 transition-opacity duration-500" data-aos="zoom-in">
+             <h1 id="room-title" class="text-3xl font-bold mb-4 text-center glitch-text"></h1>
+            
+            <div id="chat-window" class="h-96 glass-container neon-border rounded-lg p-4 mb-4 overflow-y-auto flex flex-col-reverse"></div>
+            
+            <div class="flex gap-4">
+                <input type="text" id="message-input" placeholder="Type your message..." class="terminal-input w-full rounded-lg p-3 focus:ring-2 focus:ring-teal-500">
+                <button id="send-btn" class="bg-teal-500 hover:bg-teal-600 font-bold py-3 px-6 rounded-lg shimmer-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 600, once: true });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+
+            const joinSection = document.getElementById('join-section');
+            const chatSection = document.getElementById('chat-section');
+            const createBtn = document.getElementById('create-btn');
+            const joinBtn = document.getElementById('join-btn');
+            const usernameInput = document.getElementById('username-input');
+            const roomInput = document.getElementById('room-input');
+            const secretCodeInput = document.getElementById('secret-code-input');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const roomTitle = document.getElementById('room-title');
+            const sendBtn = document.getElementById('send-btn');
+            const messageInput = document.getElementById('message-input');
+            const chatWindow = document.getElementById('chat-window');
+            
+            let currentUsername = '';
+            let currentRoom = '';
+
+            function setFeedback(message, isError = true) {
+                feedbackMessage.textContent = message;
+                feedbackMessage.className = `mt-4 text-sm font-mono ${isError ? 'text-red-400' : 'text-green-400'}`;
+            }
+
+            // Function to handle moving to the chat screen
+            function enterChat(roomName) {
+                currentRoom = roomName;
+                socket.emit('join', { username: currentUsername, team_id: currentRoom });
+                
+                joinSection.classList.add('opacity-0');
+                setTimeout(() => {
+                    joinSection.classList.add('hidden');
+                    chatSection.classList.remove('hidden');
+                    chatSection.classList.add('opacity-100');
+                }, 500);
+                
+                roomTitle.textContent = `Chat Room: ${currentRoom}`;
+            }
+
+            createBtn.addEventListener('click', async () => {
+                const username = usernameInput.value.trim();
+                const roomName = roomInput.value.trim();
+                
+                if (!username || !roomName) {
+                    setFeedback('Please enter your name and a room name.');
+                    return;
+                }
+                
+                currentUsername = username;
+                setFeedback('Creating room...', false);
+
+                try {
+                    const response = await fetch('/api/create_room', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ room_name: roomName })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        setFeedback(`Room created! Share this code: ${data.secret_code}`, false);
+                        // Automatically enter the chat
+                        enterChat(data.room_name);
+                    } else {
+                        setFeedback(data.error, true);
+                    }
+                } catch (error) {
+                    setFeedback('An error occurred. Please try again.', true);
+                }
+            });
+
+            joinBtn.addEventListener('click', async () => {
+                const username = usernameInput.value.trim();
+                const roomName = roomInput.value.trim();
+                const secretCode = secretCodeInput.value.trim();
+
+                if (!username || !roomName || !secretCode) {
+                    setFeedback('Please enter your name, room name, and secret code.');
+                    return;
+                }
+
+                currentUsername = username;
+                setFeedback('Joining room...', false);
+
+                try {
+                    const response = await fetch('/api/join_room', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ room_name: roomName, secret_code: secretCode })
+                    });
+                    
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        setFeedback(data.message, false);
+                        enterChat(data.room_name);
+                    } else {
+                        setFeedback(data.error, true);
+                    }
+                } catch (error) {
+                    setFeedback('An error occurred. Please try again.', true);
+                }
+            });
+
+            socket.on('status', (data) => {
+                chatWindow.insertAdjacentHTML('afterbegin', `<p class="text-sm text-slate-500 italic text-center my-1 message-fade-in">${data.msg}</p>`);
+            });
+
+            socket.on('new_message', (data) => {
+                const messageEl = `
+                    <div class="mb-3 message-fade-in">
+                        <p><strong class="text-cyan-400">${data.username}</strong> <span class="text-xs text-slate-500">${data.timestamp}</span></p>
+                        <div class="bg-slate-700 p-3 rounded-lg inline-block max-w-xl">${data.message}</div>
+                    </div>`;
+                chatWindow.insertAdjacentHTML('afterbegin', messageEl);
+            });
+            
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    socket.emit('send_message', { team_id: currentRoom, username: currentUsername, message: message });
+                    messageInput.value = '';
+                }
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (e) => (e.key === 'Enter') && sendMessage());
+        });
+    </script>
+</body>
+</html>
