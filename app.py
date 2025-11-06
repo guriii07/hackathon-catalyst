@@ -57,7 +57,7 @@ def generate_idea():
     for idea in ideas:
         # FIX: The relationship 'kit_link' is returning a list. Check if it's a list and get the first item.
         # This occurs due to conflicting backrefs in models.py causing SQLAlchemy to treat the relationship as one-to-many.
-        kit = idea.kit_link 
+        kit = idea.kit
         if isinstance(kit, list) and len(kit) > 0:
             kit = kit[0]
         elif isinstance(kit, list) and len(kit) == 0:
