@@ -2,3 +2,5 @@
 Flask
 Flask-SQLAlchemy
 Flask-SocketIO
+pip install gunicorn
+pip freeze > requirements.txt
