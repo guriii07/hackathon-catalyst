@@ -7,7 +7,9 @@ import string
 
 # --- App Initialization ---
 app = Flask(__name__)
-app.config['SECRET_key'] = 'a-very-secret-key-that-you-should-change'
+import os
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hackathon_catalyst.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -158,8 +160,11 @@ def on_send_message(data):
     }, room=team_id)
 
 
-# --- Main Execution ---
+import os
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    socketio.run(app, debug=True)
+
+    port = int(os.environ.get("PORT", 8080))
+    socketio.run(app, host='0.0.0.0', port=port)
