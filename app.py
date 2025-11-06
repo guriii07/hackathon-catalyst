@@ -1,3 +1,5 @@
+import eventlet
+eventlet.monkey_patch()
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit, join_room
 # Make sure to import HackathonKit and ProjectIdea
