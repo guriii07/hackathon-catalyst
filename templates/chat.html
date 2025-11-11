@@ -198,17 +198,36 @@
             let currentUsername = '';
             let currentRoom = ''; // This holds the validated room_name, used as team_id
 
+            // Utility function to copy text to clipboard (reliable in iFrame)
+            function copyToClipboard(text) {
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = text;
+                tempTextArea.style.position = 'fixed';
+                tempTextArea.style.opacity = '0';
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                try {
+                    document.execCommand('copy');
+                    return true;
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                    return false;
+                } finally {
+                    document.body.removeChild(tempTextArea);
+                }
+            }
+
             function setFeedback(message, isError = true) {
+                // Ensure textContent is used to display plain text, avoiding UI changes
                 feedbackMessage.textContent = message;
                 feedbackMessage.className = `mt-4 text-sm font-mono ${isError ? 'text-red-400' : 'text-green-400'}`;
             }
 
-            // Function to handle moving to the chat screen
+            // Function to handle moving to the chat screen and emitting the join event
             function enterChat(roomName) {
                 currentRoom = roomName;
                 
-                // CRITICAL FIX: Send the WebSocket 'join' message immediately after validation.
-                // The server uses roomName as the team_id.
+                // CRITICAL: Send the WebSocket 'join' message immediately after validation.
                 socket.emit('join', { username: currentUsername, team_id: currentRoom });
                 
                 // UI Transition
@@ -244,7 +263,12 @@
                     const data = await response.json();
                     
                     if (response.ok) {
-                        setFeedback(`Room created! Share this code: ${data.secret_code}`, false);
+                        // FIX: Automatically copy the generated secret code to the clipboard
+                        copyToClipboard(data.secret_code);
+                        
+                        // Give feedback and immediately transition
+                        setFeedback(`Room created! Code '${data.secret_code}' copied. Share this with members.`, false);
+                        
                         // Automatically validate and enter the chat
                         enterChat(data.room_name);
                     } else {
@@ -258,7 +282,8 @@
             joinBtn.addEventListener('click', async () => {
                 const username = usernameInput.value.trim();
                 const roomName = roomInput.value.trim();
-                const secretCode = secretCodeInput.value.trim();
+                // CRITICAL FIX: Trim the secret code input to remove any accidental spaces during copy/paste
+                const secretCode = secretCodeInput.value.trim(); 
 
                 if (!username || !roomName || !secretCode) {
                     setFeedback('Please enter your name, room name, and secret code.');
