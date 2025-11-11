@@ -6,8 +6,8 @@ from models import db, Theme, ProjectIdea, TechStack, ApiRecommendation, PitchTi
 def seed_data():
     with app.app_context():
         # This will delete all existing data and recreate the database structure.
-        db.drop_all()
-        db.create_all()
+        #db.drop_all()
+        #db.create_all()
 
         # --- 1. Create Themes ---
         theme_ai = Theme(name="Artificial Intelligence")
