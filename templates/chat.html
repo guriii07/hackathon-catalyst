@@ -179,7 +179,8 @@
         AOS.init({ duration: 600, once: true });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const socket = io();
+            // Initialize socket connection immediately (autoConnect is true by default)
+            const socket = io(); 
 
             const joinSection = document.getElementById('join-section');
             const chatSection = document.getElementById('chat-section');
@@ -195,7 +196,7 @@
             const chatWindow = document.getElementById('chat-window');
             
             let currentUsername = '';
-            let currentRoom = '';
+            let currentRoom = ''; // This holds the validated room_name, used as team_id
 
             function setFeedback(message, isError = true) {
                 feedbackMessage.textContent = message;
@@ -205,8 +206,12 @@
             // Function to handle moving to the chat screen
             function enterChat(roomName) {
                 currentRoom = roomName;
+                
+                // CRITICAL FIX: Send the WebSocket 'join' message immediately after validation.
+                // The server uses roomName as the team_id.
                 socket.emit('join', { username: currentUsername, team_id: currentRoom });
                 
+                // UI Transition
                 joinSection.classList.add('opacity-0');
                 setTimeout(() => {
                     joinSection.classList.add('hidden');
@@ -240,7 +245,7 @@
                     
                     if (response.ok) {
                         setFeedback(`Room created! Share this code: ${data.secret_code}`, false);
-                        // Automatically enter the chat
+                        // Automatically validate and enter the chat
                         enterChat(data.room_name);
                     } else {
                         setFeedback(data.error, true);
@@ -264,6 +269,7 @@
                 setFeedback('Joining room...', false);
 
                 try {
+                    // 1. HTTP Validation
                     const response = await fetch('/api/join_room', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -274,7 +280,8 @@
 
                     if (response.ok) {
                         setFeedback(data.message, false);
-                        enterChat(data.room_name);
+                        // 2. SUCCESS: Call enterChat which triggers socket.emit('join', ...)
+                        enterChat(data.room_name); 
                     } else {
                         setFeedback(data.error, true);
                     }
@@ -284,10 +291,12 @@
             });
 
             socket.on('status', (data) => {
+                // Inserts status messages at the top of the chat window
                 chatWindow.insertAdjacentHTML('afterbegin', `<p class="text-sm text-slate-500 italic text-center my-1 message-fade-in">${data.msg}</p>`);
             });
 
             socket.on('new_message', (data) => {
+                // Inserts new messages at the top of the chat window
                 const messageEl = `
                     <div class="mb-3 message-fade-in">
                         <p><strong class="text-cyan-400">${data.username}</strong> <span class="text-xs text-slate-500">${data.timestamp}</span></p>
