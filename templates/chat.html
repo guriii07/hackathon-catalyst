@@ -144,13 +144,14 @@
         <!-- Join Section: Apply glass and neon border -->
         <div id="join-section" class="glass-container neon-border p-8 rounded-xl shadow-lg text-center transition-opacity duration-500" data-aos="fade-up">
             <h1 class="text-3xl font-bold mb-4 glitch-text">Secure Team Chat</h1>
-            <p class="text-slate-400 mb-6 font-mono">Create a new private room or join an existing one using the secret code.</p>
+            <p class="text-slate-400 mb-6 font-mono">Create a new private room by setting a secret code, or join an existing one.</p>
             
             <div class="space-y-4 max-w-sm mx-auto">
                 <!-- Inputs for joining and creating -->
                 <input type="text" id="username-input" placeholder="Your Name" class="terminal-input w-full rounded-lg p-3">
                 <input type="text" id="room-input" placeholder="Team Room Name (e.g., 'apollo-11')" class="terminal-input w-full rounded-lg p-3">
-                <input type="password" id="secret-code-input" placeholder="Secret Code (Required to Join)" class="terminal-input w-full rounded-lg p-3">
+                <!-- Secret Code input is now REQUIRED for CREATION and JOINING -->
+                <input type="password" id="secret-code-input" placeholder="Secret Code (Required to Create or Join)" class="terminal-input w-full rounded-lg p-3">
 
                 <div class="grid grid-cols-2 gap-4">
                     <button id="create-btn" class="bg-blue-600 hover:bg-blue-700 font-bold py-3 px-6 rounded-lg transition-colors shimmer-btn">Create Room</button>
@@ -244,9 +245,10 @@
             createBtn.addEventListener('click', async () => {
                 const username = usernameInput.value.trim();
                 const roomName = roomInput.value.trim();
+                const secretCode = secretCodeInput.value.trim(); // Get user-defined secret code
                 
-                if (!username || !roomName) {
-                    setFeedback('Please enter your name and a room name.');
+                if (!username || !roomName || !secretCode) {
+                    setFeedback('Please enter your name, room name, AND a secret code.');
                     return;
                 }
                 
@@ -254,16 +256,17 @@
                 setFeedback('Creating room...', false);
 
                 try {
+                    // Send user-defined room name AND secret code to the server
                     const response = await fetch('/api/create_room', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ room_name: roomName })
+                        body: JSON.stringify({ room_name: roomName, secret_code: secretCode }) // <-- SENDING SECRET CODE NOW
                     });
 
                     const data = await response.json();
                     
                     if (response.ok) {
-                        // FIX: Automatically copy the generated secret code to the clipboard
+                        // FIX: The code they entered is the code that was saved. We copy it back for convenience.
                         copyToClipboard(data.secret_code);
                         
                         // Give feedback and immediately transition
