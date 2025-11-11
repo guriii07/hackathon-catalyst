@@ -10,9 +10,24 @@ import string
 # --- App Initialization ---
 app = Flask(__name__)
 import os
+# --- Configuration Updates ---
+
+# 1. SECRET_KEY should always be fetched from environment variables.
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hackathon_catalyst.db'
+# 2. **CRITICAL DATABASE CHANGE**
+# Fetch the PostgreSQL URL from the environment (Render), or fall back to SQLite (local development).
+# Render automatically sets the DATABASE_URL environment variable for linked PostgreSQL instances.
+db_url = os.environ.get("DATABASE_URL")
+if db_url is None:
+    # Fallback to local SQLite only when running locally
+    db_url = 'sqlite:///hackathon_catalyst.db'
+elif db_url.startswith("postgres://"):
+    # Fix for older SQLAlchemy versions in some environments (Render's URL uses 'postgres://' 
+    # but SQLAlchemy 2.0+ generally prefers 'postgresql://')
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # --- Extension Initialization ---
