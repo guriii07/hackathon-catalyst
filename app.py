@@ -1,9 +1,10 @@
 import eventlet
 eventlet.monkey_patch()
-from flask import Flask, render_template, jsonify, request
-from flask_socketio import SocketIO, emit, join_room, request as socket_request
+from flask import Flask, render_template, jsonify, request # flask.request for HTTP routes
+from flask_socketio import SocketIO, emit, join_room, request as socket_request # flask_socketio.request for events
 # Make sure to import HackathonKit and ProjectIdea
 from models import db, Theme, ProjectIdea, TechStack, ApiRecommendation, PitchTip, ChatMessage, ChatRoom, HackathonKit 
+# Make sure to import HackathonKit and ProjectIdea
 import random
 import string
 import os
