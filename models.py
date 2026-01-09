@@ -1,9 +1,16 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, UTC
+from flask_login import  UserMixin
 
 db = SQLAlchemy()
 
 # Base Model Definitions
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False) # In real life, hash this!
+    
 class Theme(db.Model):
     __tablename__ = 'theme'
     id = db.Column(db.Integer, primary_key=True)
@@ -78,7 +85,9 @@ class ChatRoom(db.Model):
     room_name = db.Column(db.String(100), unique=True, nullable=False)
     secret_code = db.Column(db.String(20), unique=True, nullable=False)
     # CORRECTED: Use timezone-aware datetime.now(UTC)
-    created_at = db.Column(db.DateTime, default=datetime.now(UTC))
+    # In ChatRoom
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
 
     __table_args__ = {'extend_existing': True}
 
@@ -88,7 +97,7 @@ class ChatMessage(db.Model):
     team_id = db.Column(db.String(100), nullable=False, index=True) 
     username = db.Column(db.String(100), nullable=False, index=True)
     message = db.Column(db.Text, nullable=False)
-    # CORRECTED: Use timezone-aware datetime.now(UTC)
-    timestamp = db.Column(db.DateTime, default=datetime.now(UTC), index=True)
+   # In ChatMessage
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(UTC), index=True)
     
     __table_args__ = {'extend_existing': True}

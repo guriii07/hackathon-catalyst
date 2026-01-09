@@ -5,10 +5,12 @@ from models import db, Theme, ProjectIdea, TechStack, ApiRecommendation, PitchTi
 
 def seed_data():
     with app.app_context():
-        # This will delete all existing data and recreate the database structure.
-        #db.drop_all()
-        #db.create_all()
-
+        # --- 0. RESET DATABASE (These are the missing lines!) ---
+        print("Dropping old database...")
+        db.drop_all()
+        print("Creating new database...")
+        db.create_all()
+        
         # --- 1. Create Themes ---
         theme_ai = Theme(name="Artificial Intelligence")
         theme_health = Theme(name="Healthcare Tech")
@@ -158,8 +160,8 @@ def seed_data():
         # --- 4. Create API Recommendations ---
         apis = [
             # General-purpose APIs
-            ApiRecommendation(name="Twilio API", url="https://www.twilio.com/", description="Programmatically make and receive phone calls, send and receive text messages.", theme=theme_social),
-            ApiRecommendation(name="Google Maps API", url="https://developers.google.com/maps/documentation/javascript/overview", description="Embed maps and geolocation features into your application.", theme=theme_iot),
+            ApiRecommendation(name="Twilio API", url="https://www.twilio.com/docs/usage/api", description="Programmatically make and receive phone calls, send and receive text messages.", theme=theme_social),
+            ApiRecommendation(name="Google Maps Platform", url="https://developers.google.com/maps/documentation", description="Embed maps, geolocation, and place data into your application.", theme=theme_iot),
             ApiRecommendation(name="Stripe API", url="https://stripe.com/docs/api", description="Process payments and manage financial transactions easily.", theme=theme_fintech),
             ApiRecommendation(name="Hugging Face Inference API", url="https://huggingface.co/docs/api-inference/index", description="Easily integrate state-of-the-art machine learning models.", theme=theme_ai),
             ApiRecommendation(name="Web Speech API", url="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API", description="Allows for voice recognition (speech-to-text) and speech synthesis (text-to-speech) in web apps.", theme=theme_education),
@@ -167,22 +169,25 @@ def seed_data():
             ApiRecommendation(name="OpenWeatherMap API", url="https://openweathermap.org/api", description="Access current weather data for any location.", theme=theme_sustain),
 
             # Healthcare-specific APIs
-            ApiRecommendation(name="Healthify API", url="https://developer.healthify.me/", description="Provides access to a database of foods, nutrients, and recipes.", theme=theme_health),
+            # REPLACED Healthify (Restricted) with Edamam (Hackathon friendly)
+            ApiRecommendation(name="Edamam Nutrition API", url="https://developer.edamam.com/edamam-nutrition-api", description="Get nutrition analysis for food text or recipes.", theme=theme_health),
             ApiRecommendation(name="Infermedica API", url="https://developer.infermedica.com/", description="A medical diagnostic API that helps in preliminary symptom analysis.", theme=theme_health),
             
             # Game Development-specific APIs
             ApiRecommendation(name="RAWG Video Games Database API", url="https://rawg.io/apidocs", description="The largest open video game database with info on 500,000+ games.", theme=theme_gamedev),
-            ApiRecommendation(name="Steam Web API", url="https://steamapi.doc.sp.se/", description="Get game and user data from the Steam platform.", theme=theme_gamedev),
+            # UPDATED URL to official Valve documentation
+            ApiRecommendation(name="Steam Web API", url="https://steamcommunity.com/dev", description="Get game and user data from the Steam platform.", theme=theme_gamedev),
 
             # Sustainability-specific APIs
-            ApiRecommendation(name="Recycle Coach API", url="https://developer.recyclecoach.com/", description="Provides local recycling and waste disposal information.", theme=theme_sustain),
+            ApiRecommendation(name="Carbon Interface API", url="https://docs.carboninterface.com/", description="Accurate carbon footprint estimates for travel, electricity, and shipping.", theme=theme_sustain),
 
             # IoT-specific APIs
             ApiRecommendation(name="Particle IoT API", url="https://docs.particle.io/reference/cloud-apis/api/", description="Connect and manage IoT devices to a cloud platform.", theme=theme_iot),
 
             # Education-specific APIs
-            ApiRecommendation(name="Open Trivia Database", url="https://opentdb.com/", description="A free to use database of trivia questions.", theme=theme_education),
-            ApiRecommendation(name="Quizlet API", url="https://quizlet.com/api-access", description="Create and manage flashcards, study sets, and quizzes.", theme=theme_education),
+            ApiRecommendation(name="Open Trivia Database", url="https://opentdb.com/api_config.php", description="A free to use database of trivia questions.", theme=theme_education),
+            # REPLACED Quizlet (Shutdown) with Dictionary API
+            ApiRecommendation(name="Free Dictionary API", url="https://dictionaryapi.dev/", description="Free API to retrieve definitions, phonetics, and audio for English words.", theme=theme_education),
         ]
         db.session.add_all(apis)
 

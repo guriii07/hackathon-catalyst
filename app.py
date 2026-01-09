@@ -1,28 +1,24 @@
 import eventlet
 eventlet.monkey_patch()
-from flask import Flask, render_template, jsonify, request # flask.request for HTTP routes
-from flask_socketio import SocketIO, emit, join_room # CORRECTED: Removed invalid 'request as socket_request'
-# Make sure to import HackathonKit and ProjectIdea
-from models import db, Theme, ProjectIdea, TechStack, ApiRecommendation, PitchTip, ChatMessage, ChatRoom, HackathonKit 
+from datetime import datetime, timedelta, timezone
+from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from models import db, Theme, ProjectIdea, TechStack, ApiRecommendation, PitchTip, ChatMessage, ChatRoom, HackathonKit, User
 import random
 import string
+import os
 
 # --- App Initialization ---
 app = Flask(__name__)
-import os
-# --- Configuration Updates ---
 
-# 1. SECRET_KEY should always be fetched from environment variables.
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+# --- Configuration ---
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-key') 
 
-# 2. **CRITICAL DATABASE CHANGE**
-# Fetch the PostgreSQL URL from the environment (Render), or fall back to SQLite (local development).
 db_url = os.environ.get("DATABASE_URL")
 if db_url is None:
-    # Fallback to local SQLite only when running locally
     db_url = 'sqlite:///hackathon_catalyst.db'
 elif db_url.startswith("postgres://"):
-    # Fix for SQLAlchemy 2.0+
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
@@ -32,16 +28,69 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 socketio = SocketIO(app)
 
+# --- Login Setup ---
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    # FIXED: Updated to modern SQLAlchemy 2.0 syntax to remove the warning
+    return db.session.get(User, int(user_id))
 
 # --- HTTP Routes ---
+
 @app.route('/')
 def home():
     themes = Theme.query.order_by(Theme.name).all()
     return render_template('home.html', themes=themes)
 
 @app.route('/chat')
+@login_required
 def chat():
-    return render_template('chat.html')
+    # FIXED: Pointing to 'chat.html' since that is your file name
+    return render_template('chat.html', username=current_user.username)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if User.query.filter_by(username=username).first():
+            return render_template('register.html', error="User already exists!")
+        
+        new_user = User(username=username, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        
+        login_user(new_user)
+        return redirect(url_for('home'))
+    
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            login_user(user)
+            return redirect(url_for('home'))
+        
+        return render_template('login.html', error="Invalid credentials")
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+# --- API Routes ---
 
 @app.route('/api/generate', methods=['POST'])
 def generate_idea():
@@ -52,36 +101,24 @@ def generate_idea():
     if not theme_id:
         return jsonify({'error': 'Theme ID is required'}), 400
 
-    # 1. Start query on ProjectIdea model
-    query = ProjectIdea.query.filter_by(theme_id=theme_id)
-    
-    # 2. Join the HackathonKit to get the related data
-    query = query.join(HackathonKit)
+    query = ProjectIdea.query.filter_by(theme_id=theme_id).join(HackathonKit)
 
-    # 3. FIX: If a difficulty is specified, filter the ProjectIdea model explicitly
     if difficulty:
-        # We must use ProjectIdea.difficulty to tell SQLAlchemy to filter the *first* joined table
-        query = query.filter(ProjectIdea.difficulty == difficulty) 
+        query = query.filter(ProjectIdea.difficulty == difficulty)
 
-    # Fetch up to 3 random ideas along with their kits
     ideas = query.order_by(db.func.random()).limit(3).all()
     
     if not ideas:
-        return jsonify({'error': 'No ideas found for this theme and difficulty. Try another combination!'}), 404
+        return jsonify({'error': 'No ideas found for this theme.'}), 404
 
-    # Loop and package the pre-linked kit for each idea
     response_data = []
     for idea in ideas:
-        # FIX: The relationship 'kit_link' is returning a list. Check if it's a list and get the first item.
-        # This occurs due to conflicting backrefs in models.py causing SQLAlchemy to treat the relationship as one-to-many.
         kit = idea.kit
         if isinstance(kit, list) and len(kit) > 0:
             kit = kit[0]
         elif isinstance(kit, list) and len(kit) == 0:
-             # Handle case where the kit link is missing after join filter
              continue
         
-        # Package the idea and its pre-linked kit together
         idea_package = {
             'idea': {
                 'title': idea.title,
@@ -98,23 +135,20 @@ def generate_idea():
 
     return jsonify(response_data)
 
-
-# --- NEW API ROUTES FOR SECURE ROOMS ---
 @app.route('/api/create_room', methods=['POST'])
+@login_required
 def create_room():
     data = request.get_json()
     room_name = data.get('room_name', '').strip()
-    secret_code = data.get('secret_code', '').strip() # NOW WE READ THE USER-DEFINED CODE
+    secret_code = data.get('secret_code', '').strip()
     
     if not room_name or not secret_code:
-        return jsonify({'error': 'Room name and secret code are required to create a room.'}), 400
+        return jsonify({'error': 'Room name and secret code are required.'}), 400
 
-    # Check if the room name already exists
     existing_room = ChatRoom.query.filter_by(room_name=room_name).first()
     if existing_room:
-        return jsonify({'error': f"Room name '{room_name}' already taken."}), 409
+        return jsonify({'error': f"Room '{room_name}' already exists."}), 409
     
-    # *** CHANGE IS HERE ***: We use the user-provided secret_code
     new_room = ChatRoom(room_name=room_name, secret_code=secret_code)
     db.session.add(new_room)
     db.session.commit()
@@ -122,20 +156,19 @@ def create_room():
     return jsonify({
         'message': 'Room created successfully!',
         'room_name': new_room.room_name,
-        'secret_code': new_room.secret_code # Return the user's code for confirmation
+        'secret_code': new_room.secret_code
     }), 201
 
 @app.route('/api/join_room', methods=['POST'])
+@login_required
 def join_room_with_code():
     data = request.get_json()
     room_name = data.get('room_name', '').strip()
     secret_code = data.get('secret_code', '').strip()
 
     if not room_name or not secret_code:
-        return jsonify({'error': 'Room name and secret code are required to join.'}), 400
+        return jsonify({'error': 'Room name and secret code are required.'}), 400
 
-    # Find the room and validate the secret code
-    # This query remains the same, checking against the user-defined secret code now stored in the DB.
     room = ChatRoom.query.filter_by(room_name=room_name, secret_code=secret_code).first()
     
     if not room:
@@ -146,53 +179,81 @@ def join_room_with_code():
         'room_name': room.room_name
     }), 200
 
+# --- SocketIO Events ---
 
-# --- SocketIO Real-Time Events ---
+active_users = {}
+
 @socketio.on('join')
 def on_join(data):
-    username = data.get('username', 'Anonymous')
+    username = current_user.username if current_user.is_authenticated else data.get('username', 'Anonymous')
     team_id = data.get('team_id')
     
     if not team_id:
-        # Defensive programming: Ignore join attempt without a room ID
         return
 
     join_room(team_id)
+    
+    if team_id not in active_users:
+        active_users[team_id] = []
+    
+    if username not in active_users[team_id]:
+        active_users[team_id].append(username)
+    
+    emit('update_user_list', {'users': active_users[team_id]}, room=team_id)
     emit('status', {'msg': f'{username} has entered the room.'}, room=team_id)
+
+@socketio.on('leave')
+def on_leave(data):
+    username = current_user.username if current_user.is_authenticated else data.get('username', 'Anonymous')
+    team_id = data.get('team_id')
+    
+    leave_room(team_id)
+    
+    if team_id in active_users and username in active_users[team_id]:
+        active_users[team_id].remove(username)
+        
+    emit('update_user_list', {'users': active_users.get(team_id, [])}, room=team_id)
+    emit('status', {'msg': f'{username} has left the room.'}, room=team_id)
 
 @socketio.on('send_message')
 def on_send_message(data):
     team_id = data.get('team_id')
-    
     if not team_id:
-        # Defensive programming
         return
     
-    # Store the message in the database (this is a blocking operation, but typical for small Flask apps)
+    username = current_user.username if current_user.is_authenticated else "Anonymous"
+    
+    # 1. Get Current UTC Time (For Database)
+    now_utc = datetime.now(timezone.utc)
+    
+    # 2. Calculate IST for the Chat Window Display (UTC + 5:30)
+    ist_offset = timedelta(hours=5, minutes=30)
+    now_ist = now_utc + ist_offset
+    
+    # 3. Format it nicely (e.g., "11:05 AM")
+    formatted_time_str = now_ist.strftime('%I:%M %p')
+    
+    # 4. Store in Database
     message = ChatMessage(
         team_id=team_id, 
-        username=data.get('username', 'Anonymous'), 
-        message=data.get('message', '')
+        username=username, 
+        message=data.get('message', ''),
+        timestamp=now_utc 
     )
     db.session.add(message)
     db.session.commit()
     
-    # Emit the message to the room
+    # 5. Emit SINGLE message with formatted time
     emit('new_message', {
         'username': message.username,
         'message': message.message,
-        'timestamp': message.timestamp.strftime('%I:%M %p')
+        'timestamp': formatted_time_str
     }, room=team_id)
 
-
-# --- Application Runner ---
+# --- Runner ---
 if __name__ == '__main__':
     with app.app_context():
-        # NOTE: If you are running locally, this creates the SQLite file.
-        # On Render, this is ignored because we use the separate setup_db.py job.
         db.create_all()
-
+    
     port = int(os.environ.get("PORT", 10000))
-    # NOTE: We use socketio.run for local development, 
-    # but Gunicorn is used for deployment on Render.
     socketio.run(app, host='0.0.0.0', port=port)

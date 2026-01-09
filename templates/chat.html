@@ -8,12 +8,8 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <!-- UNIFIED STYLE BLOCK -->
     <style>
-        /* -----------------------------------------------------------
-        HACKER THEME: CORE & GLOBAL STYLES (UNIFIED)
-        ----------------------------------------------------------- */
-        /* Set consistent background (using the original static image path and dark overlay) */
+        /* CORE & GLOBAL STYLES */
         body {
             background-image: url('/static/images/Generated Image October 02, 2025 - 10_05PM.png');
             background-size: cover;
@@ -21,36 +17,13 @@
             background-position: center;
             background-color: rgba(15, 23, 42, 0.5);
             background-blend-mode: multiply;
-            font-family: 'Major Mono Display', monospace; /* Consistent Font */
+            font-family: 'Major Mono Display', monospace;
             color: #e2e8f0; 
         }
 
-        /* Import the new hacker-style font from Google Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
 
-        /* Existing animated gradient for the title (from home.html) */
-        .animated-gradient { background-size: 200% auto; animation: gradient-animation 5s ease infinite; }
-        @keyframes gradient-animation { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        
-        /* Enhanced selected card style (from home.html) */
-        .idea-card.selected { 
-            border-color: #2dd4bf; 
-            transform: scale(1.02); 
-            box-shadow: 0 0 15px rgba(45, 212, 191, 0.3);
-        }
-
-        /* Styles for the copy button feedback (from home.html) */
-        .copy-btn .copy-icon { display: block; }
-        .copy-btn .check-icon { display: none; }
-        .copy-btn.copied .copy-icon { display: none; }
-        .copy-btn.copied .check-icon { display: block; }
-
-        /*
-        --------------------------
-        UNIFIED HACKER ANIMATION STYLES 
-        --------------------------
-        */
-        /* Glitch animation for the main title/headings */
+        /* ANIMATIONS */
         @keyframes glitch {
             0% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(0); }
             10% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(-2px); }
@@ -64,17 +37,11 @@
             90% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(2px); }
             100% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(0); }
         }
-        .glitch-text { animation: glitch 1.5s infinite; } /* Apply this class to headers in chat.html */
+        .glitch-text { animation: glitch 1.5s infinite; }
 
-        /* Pulsing glow for the timer numbers */
-        @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 5px #2dd4bf, 0 0 10px #2dd4bf; }
-            50% { text-shadow: 0 0 10px #2dd4bf, 0 0 20px #2dd4bf; }
-        }
-
-        /* Glowing border effect for containers (Glassmorphism + Neon) */
+        /* GLASSMORPHISM & NEON */
         .glass-container {
-            background-color: rgba(30, 41, 59, 0.6); /* Tailwind's slate-800 with transparency */
+            background-color: rgba(30, 41, 59, 0.6);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(45, 212, 191, 0.2);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
@@ -84,20 +51,8 @@
             0%, 100% { border-color: rgba(45, 212, 191, 0.4); box-shadow: 0 0 5px rgba(45, 212, 191, 0.2); }
             50% { border-color: rgba(45, 212, 191, 0.8); box-shadow: 0 0 10px rgba(45, 212, 191, 0.4); }
         }
-        .neon-border { animation: neon-border 3s ease-in-out infinite; } /* Apply to main sections */
+        .neon-border { animation: neon-border 3s ease-in-out infinite; }
 
-
-        /* Pulsing cursor effect for the subtitle (from home.html) */
-        @keyframes pulse-cursor {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        .pulsing-cursor:after {
-            content: '|';
-            animation: pulse-cursor 1s step-end infinite;
-        }
-
-        /* Styles for a terminal-like appearance on inputs and selects (from home.html) */
         .terminal-input {
             background-color: rgba(30, 41, 59, 0.8) !important;
             border: 1px solid #2dd4bf;
@@ -111,22 +66,13 @@
             outline: none;
         }
 
-        /* Custom glow-on-hover effect for the timer items */
-        .timer-item-container:hover .timer-item {
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        /* Message slide-in animation (unique to chat, but defined here) */
+        /* Message Animations */
         @keyframes message-slide {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        .message-fade-in {
-            animation: message-slide 0.3s ease-out;
-        }
+        .message-fade-in { animation: message-slide 0.3s ease-out; }
     </style>
-    <!-- END OF UNIFIED STYLE BLOCK -->
-
 </head>
 <body class="bg-slate-900 text-white font-sans">
     
@@ -134,41 +80,47 @@
         <div class="container mx-auto flex justify-between items-center px-4">
             <a href="/" class="text-xl font-bold text-white glitch-text">Hackathon Catalyst</a>
             <div>
+                <span class="text-teal-400 mr-4 font-mono text-sm">Logged in as: {{ username }}</span>
                 <a href="/" class="text-slate-300 hover:text-white px-3 py-2 rounded-md shimmer-btn">Toolkit</a>
-                <a href="/chat" class="bg-slate-700 text-white px-3 py-2 rounded-md shimmer-btn">Team Chat</a>
+                <a href="/logout" class="bg-red-500/80 hover:bg-red-600 text-white px-3 py-2 rounded-md shimmer-btn text-sm">Logout</a>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto p-4 max-w-4xl">
-        <!-- Join Section: Apply glass and neon border -->
+    <div class="container mx-auto p-4 max-w-5xl">
+        
         <div id="join-section" class="glass-container neon-border p-8 rounded-xl shadow-lg text-center transition-opacity duration-500" data-aos="fade-up">
             <h1 class="text-3xl font-bold mb-4 glitch-text">Secure Team Chat</h1>
-            <p class="text-slate-400 mb-6 font-mono">Create a new private room by setting a secret code, or join an existing one.</p>
+            <p class="text-slate-400 mb-6 font-mono">Join your team's encrypted channel.</p>
             
             <div class="space-y-4 max-w-sm mx-auto">
-                <!-- Inputs for joining and creating -->
-                <input type="text" id="username-input" placeholder="Your Name" class="terminal-input w-full rounded-lg p-3">
-                <input type="text" id="room-input" placeholder="Team Room Name (e.g., 'apollo-11')" class="terminal-input w-full rounded-lg p-3">
-                <!-- Secret Code input is now REQUIRED for CREATION and JOINING -->
-                <input type="password" id="secret-code-input" placeholder="Secret Code (Required to Create or Join)" class="terminal-input w-full rounded-lg p-3">
+                <input type="text" id="room-input" placeholder="Team Room Name" class="terminal-input w-full rounded-lg p-3">
+                <input type="password" id="secret-code-input" placeholder="Secret Code" class="terminal-input w-full rounded-lg p-3">
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button id="create-btn" class="bg-blue-600 hover:bg-blue-700 font-bold py-3 px-6 rounded-lg transition-colors shimmer-btn">Create Room</button>
-                    <button id="join-btn" class="bg-teal-500 hover:bg-teal-600 font-bold py-3 px-6 rounded-lg transition-colors shimmer-btn">Join Room</button>
+                    <button id="create-btn" class="bg-blue-600 hover:bg-blue-700 font-bold py-3 px-6 rounded-lg transition-colors shimmer-btn">Create</button>
+                    <button id="join-btn" class="bg-teal-500 hover:bg-teal-600 font-bold py-3 px-6 rounded-lg transition-colors shimmer-btn">Join</button>
                 </div>
             </div>
-            <!-- Feedback Message Area -->
             <p id="feedback-message" class="mt-4 text-sm font-mono text-red-400"></p>
         </div>
 
-        <!-- Chat Section -->
         <div id="chat-section" class="hidden opacity-0 transition-opacity duration-500" data-aos="zoom-in">
              <h1 id="room-title" class="text-3xl font-bold mb-4 text-center glitch-text"></h1>
             
-            <div id="chat-window" class="h-96 glass-container neon-border rounded-lg p-4 mb-4 overflow-y-auto flex flex-col-reverse"></div>
+            <div class="flex flex-col md:flex-row gap-4 h-[500px]">
+                
+                <div id="chat-window" class="flex-1 glass-container neon-border rounded-lg p-4 overflow-y-auto flex flex-col-reverse">
+                    </div>
+
+                <div class="w-full md:w-48 glass-container rounded-lg p-4 border border-slate-700 overflow-y-auto">
+                    <h3 class="text-teal-400 font-bold mb-3 border-b border-slate-600 pb-2 text-sm font-mono">Online Members</h3>
+                    <ul id="users-list" class="space-y-2 text-sm text-slate-300 font-mono">
+                        </ul>
+                </div>
+            </div>
             
-            <div class="flex gap-4">
+            <div class="flex gap-4 mt-4">
                 <input type="text" id="message-input" placeholder="Type your message..." class="terminal-input w-full rounded-lg p-3 focus:ring-2 focus:ring-teal-500">
                 <button id="send-btn" class="bg-teal-500 hover:bg-teal-600 font-bold py-3 px-6 rounded-lg shimmer-btn">Send</button>
             </div>
@@ -180,14 +132,13 @@
         AOS.init({ duration: 600, once: true });
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize socket connection immediately (autoConnect is true by default)
             const socket = io(); 
 
+            // Elements
             const joinSection = document.getElementById('join-section');
             const chatSection = document.getElementById('chat-section');
             const createBtn = document.getElementById('create-btn');
             const joinBtn = document.getElementById('join-btn');
-            const usernameInput = document.getElementById('username-input');
             const roomInput = document.getElementById('room-input');
             const secretCodeInput = document.getElementById('secret-code-input');
             const feedbackMessage = document.getElementById('feedback-message');
@@ -195,41 +146,33 @@
             const sendBtn = document.getElementById('send-btn');
             const messageInput = document.getElementById('message-input');
             const chatWindow = document.getElementById('chat-window');
+            const usersList = document.getElementById('users-list'); // Sidebar list
             
-            let currentUsername = '';
-            let currentRoom = ''; // This holds the validated room_name, used as team_id
+            // JINJA INJECTION: Get the logged-in username securely
+            const currentUsername = "{{ username }}"; 
+            let currentRoom = ''; 
 
-            // Utility function to copy text to clipboard (reliable in iFrame)
+            // Utility: Copy to Clipboard
             function copyToClipboard(text) {
                 const tempTextArea = document.createElement('textarea');
                 tempTextArea.value = text;
-                tempTextArea.style.position = 'fixed';
-                tempTextArea.style.opacity = '0';
                 document.body.appendChild(tempTextArea);
                 tempTextArea.select();
-                try {
-                    document.execCommand('copy');
-                    return true;
-                } catch (err) {
-                    console.error('Copy failed:', err);
-                    return false;
-                } finally {
-                    document.body.removeChild(tempTextArea);
-                }
+                document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
             }
 
             function setFeedback(message, isError = true) {
-                // Ensure textContent is used to display plain text, avoiding UI changes
                 feedbackMessage.textContent = message;
                 feedbackMessage.className = `mt-4 text-sm font-mono ${isError ? 'text-red-400' : 'text-green-400'}`;
             }
 
-            // Function to handle moving to the chat screen and emitting the join event
+            // Enter Chat Logic
             function enterChat(roomName) {
                 currentRoom = roomName;
                 
-                // CRITICAL: Send the WebSocket 'join' message immediately after validation.
-                socket.emit('join', { username: currentUsername, team_id: currentRoom });
+                // Emit join event (Backend handles username via session, but we send team_id)
+                socket.emit('join', { team_id: currentRoom, username: currentUsername });
                 
                 // UI Transition
                 joinSection.classList.add('opacity-0');
@@ -239,65 +182,55 @@
                     chatSection.classList.add('opacity-100');
                 }, 500);
                 
-                roomTitle.textContent = `Chat Room: ${currentRoom}`;
+                roomTitle.textContent = `Room: ${currentRoom}`;
             }
 
+            // --- EVENT LISTENERS ---
+
             createBtn.addEventListener('click', async () => {
-                const username = usernameInput.value.trim();
                 const roomName = roomInput.value.trim();
-                const secretCode = secretCodeInput.value.trim(); // Get user-defined secret code
+                const secretCode = secretCodeInput.value.trim();
                 
-                if (!username || !roomName || !secretCode) {
-                    setFeedback('Please enter your name, room name, AND a secret code.');
+                if (!roomName || !secretCode) {
+                    setFeedback('Room name and Secret Code are required.');
                     return;
                 }
                 
-                currentUsername = username;
                 setFeedback('Creating room...', false);
 
                 try {
-                    // Send user-defined room name AND secret code to the server
                     const response = await fetch('/api/create_room', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ room_name: roomName, secret_code: secretCode }) // <-- SENDING SECRET CODE NOW
+                        body: JSON.stringify({ room_name: roomName, secret_code: secretCode })
                     });
 
                     const data = await response.json();
                     
                     if (response.ok) {
-                        // FIX: The code they entered is the code that was saved. We copy it back for convenience.
                         copyToClipboard(data.secret_code);
-                        
-                        // Give feedback and immediately transition
-                        setFeedback(`Room created! Code '${data.secret_code}' copied. Share this with members.`, false);
-                        
-                        // Automatically validate and enter the chat
+                        setFeedback(`Room created! Code '${data.secret_code}' copied.`, false);
                         enterChat(data.room_name);
                     } else {
                         setFeedback(data.error, true);
                     }
                 } catch (error) {
-                    setFeedback('An error occurred. Please try again.', true);
+                    setFeedback('Server error.', true);
                 }
             });
 
             joinBtn.addEventListener('click', async () => {
-                const username = usernameInput.value.trim();
                 const roomName = roomInput.value.trim();
-                // CRITICAL FIX: Trim the secret code input to remove any accidental spaces during copy/paste
-                const secretCode = secretCodeInput.value.trim(); 
+                const secretCode = secretCodeInput.value.trim();
 
-                if (!username || !roomName || !secretCode) {
-                    setFeedback('Please enter your name, room name, and secret code.');
+                if (!roomName || !secretCode) {
+                    setFeedback('Enter Room Name and Secret Code.');
                     return;
                 }
 
-                currentUsername = username;
-                setFeedback('Joining room...', false);
+                setFeedback('Verifying...', false);
 
                 try {
-                    // 1. HTTP Validation
                     const response = await fetch('/api/join_room', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -307,36 +240,60 @@
                     const data = await response.json();
 
                     if (response.ok) {
-                        setFeedback(data.message, false);
-                        // 2. SUCCESS: Call enterChat which triggers socket.emit('join', ...)
+                        setFeedback('Success!', false);
                         enterChat(data.room_name); 
                     } else {
                         setFeedback(data.error, true);
                     }
                 } catch (error) {
-                    setFeedback('An error occurred. Please try again.', true);
+                    setFeedback('Server error.', true);
                 }
             });
 
+            // --- SOCKET EVENTS ---
+
+            // 1. Status Messages (Italic gray text)
             socket.on('status', (data) => {
-                // Inserts status messages at the top of the chat window
-                chatWindow.insertAdjacentHTML('afterbegin', `<p class="text-sm text-slate-500 italic text-center my-1 message-fade-in">${data.msg}</p>`);
+                chatWindow.insertAdjacentHTML('afterbegin', `<p class="text-xs text-slate-500 italic text-center my-1 message-fade-in">${data.msg}</p>`);
             });
 
+            // 2. New Message (With Timezone Fix)
+            
             socket.on('new_message', (data) => {
-                // Inserts new messages at the top of the chat window
+                // The server now sends "11:05 AM" directly in data.timestamp
+                // So we don't need 'new Date()' or logic here anymore.
+                
+                const isMe = data.username === "{{ username }}"; // Use Flask variable for reliability
+                const nameColor = isMe ? 'text-teal-400' : 'text-cyan-400';
+
                 const messageEl = `
                     <div class="mb-3 message-fade-in">
-                        <p><strong class="text-cyan-400">${data.username}</strong> <span class="text-xs text-slate-500">${data.timestamp}</span></p>
-                        <div class="bg-slate-700 p-3 rounded-lg inline-block max-w-xl">${data.message}</div>
+                        <p>
+                            <strong class="${nameColor}">${data.username}</strong> 
+                            <span class="text-xs text-slate-300 ml-2 font-mono opacity-70">${data.timestamp}</span>
+                        </p>
+                        <div class="bg-slate-700/80 p-3 rounded-lg inline-block max-w-xl text-white border border-slate-600 font-mono text-sm">
+                            ${data.message}
+                        </div>
                     </div>`;
                 chatWindow.insertAdjacentHTML('afterbegin', messageEl);
+            });
+
+            // 3. Update User List (Sidebar)
+            socket.on('update_user_list', (data) => {
+                usersList.innerHTML = ''; // Clear list
+                data.users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.className = "flex items-center animate-pulse";
+                    li.innerHTML = `<span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 shadow-[0_0_5px_#22c55e]"></span> ${user}`;
+                    usersList.appendChild(li);
+                });
             });
             
             function sendMessage() {
                 const message = messageInput.value.trim();
                 if (message) {
-                    socket.emit('send_message', { team_id: currentRoom, username: currentUsername, message: message });
+                    socket.emit('send_message', { team_id: currentRoom, message: message });
                     messageInput.value = '';
                 }
             }

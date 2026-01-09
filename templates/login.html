@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Hackathon Catalyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Professional Sans-Serif Font */
+            background-image: url('/static/images/Generated Image October 02, 2025 - 10_05PM.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-color: rgba(15, 23, 42, 0.85); /* Stronger overlay for readability */
+            background-blend-mode: multiply;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        /* Professional Glass Card */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Modern Input Fields */
+        .modern-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .modern-input:focus {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: #2dd4bf; /* Teal-400 */
+            box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.1);
+            outline: none;
+        }
+        .modern-input::placeholder {
+            color: #64748b;
+        }
+
+        /* Gradient Button */
+        .primary-btn {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            transition: all 0.3s ease;
+        }
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-md p-6" data-aos="fade-up" data-aos-duration="800">
+        
+        <div class="glass-card rounded-2xl p-8 w-full">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">Welcome Back</h1>
+                <p class="text-slate-400 text-sm">Sign in to access your dashboard</p>
+            </div>
+
+            {% if error %}
+            <div class="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-red-400 text-sm font-medium">{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <form action="/login" method="POST" class="space-y-5">
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1.5 ml-1">Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        <input type="text" name="username" class="modern-input w-full pl-10 pr-4 py-3 rounded-xl text-sm" placeholder="Enter your username" required autocomplete="off">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1.5 ml-1">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <input type="password" name="password" class="modern-input w-full pl-10 pr-4 py-3 rounded-xl text-sm" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="primary-btn w-full text-white font-semibold py-3.5 rounded-xl shadow-lg mt-2">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="mt-8 text-center space-y-4">
+                <p class="text-sm text-slate-400">
+                    Don't have an account? 
+                    <a href="/register" class="text-teal-400 hover:text-teal-300 font-medium hover:underline transition-colors">Create account</a>
+                </p>
+                <div>
+                    <a href="/" class="text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+</body>
+</html>
