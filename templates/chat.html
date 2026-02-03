@@ -23,21 +23,7 @@
 
         @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
 
-        /* ANIMATIONS */
-        @keyframes glitch {
-            0% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(0); }
-            10% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(-2px); }
-            20% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(2px); }
-            30% { text-shadow: -2px -2px #48bb78, 2px 2px #60a5fa; transform: translate(0); }
-            40% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(-2px); }
-            50% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(2px); }
-            60% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(0); }
-            70% { text-shadow: -2px -2px #48bb78, 2px 2px #60a5fa; transform: translate(2px); }
-            80% { text-shadow: 2px 2px #48bb78, -2px -2px #60a5fa; transform: translate(-2px); }
-            90% { text-shadow: -2px 2px #48bb78, 2px -2px #60a5fa; transform: translate(2px); }
-            100% { text-shadow: 2px -2px #48bb78, -2px 2px #60a5fa; transform: translate(0); }
-        }
-        .glitch-text { animation: glitch 1.5s infinite; }
+        
 
         /* GLASSMORPHISM & NEON */
         .glass-container {
@@ -259,25 +245,26 @@
 
             // 2. New Message (With Timezone Fix)
             
-            socket.on('new_message', (data) => {
-                // The server now sends "11:05 AM" directly in data.timestamp
-                // So we don't need 'new Date()' or logic here anymore.
-                
-                const isMe = data.username === "{{ username }}"; // Use Flask variable for reliability
-                const nameColor = isMe ? 'text-teal-400' : 'text-cyan-400';
+            // 2. New Message (With Timezone Fix)
+// FIXED: We use .off() to remove any previous listeners before adding a new one
+socket.off('new_message').on('new_message', (data) => {
+    
+    // The server now sends "11:05 AM" directly in data.timestamp
+    const isMe = data.username === "{{ username }}"; 
+    const nameColor = isMe ? 'text-teal-400' : 'text-cyan-400';
 
-                const messageEl = `
-                    <div class="mb-3 message-fade-in">
-                        <p>
-                            <strong class="${nameColor}">${data.username}</strong> 
-                            <span class="text-xs text-slate-300 ml-2 font-mono opacity-70">${data.timestamp}</span>
-                        </p>
-                        <div class="bg-slate-700/80 p-3 rounded-lg inline-block max-w-xl text-white border border-slate-600 font-mono text-sm">
-                            ${data.message}
-                        </div>
-                    </div>`;
-                chatWindow.insertAdjacentHTML('afterbegin', messageEl);
-            });
+    const messageEl = `
+        <div class="mb-3 message-fade-in">
+            <p>
+                <strong class="${nameColor}">${data.username}</strong> 
+                <span class="text-xs text-slate-300 ml-2 font-mono opacity-70">${data.timestamp}</span>
+            </p>
+            <div class="bg-slate-700/80 p-3 rounded-lg inline-block max-w-xl text-white border border-slate-600 font-mono text-sm">
+                ${data.message}
+            </div>
+        </div>`;
+    chatWindow.insertAdjacentHTML('afterbegin', messageEl);
+});
 
             // 3. Update User List (Sidebar)
             socket.on('update_user_list', (data) => {

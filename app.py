@@ -1,7 +1,7 @@
 import eventlet
 eventlet.monkey_patch()
 from datetime import datetime, timedelta, timezone
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, Theme, ProjectIdea, TechStack, ApiRecommendation, PitchTip, ChatMessage, ChatRoom, HackathonKit, User
@@ -180,7 +180,6 @@ def join_room_with_code():
     }), 200
 
 # --- SocketIO Events ---
-
 active_users = {}
 
 @socketio.on('join')
@@ -190,6 +189,10 @@ def on_join(data):
     
     if not team_id:
         return
+
+    # CRITICAL FIX: Save info to session so we can access it on disconnect
+    session['room'] = team_id
+    session['username'] = username
 
     join_room(team_id)
     
@@ -204,16 +207,37 @@ def on_join(data):
 
 @socketio.on('leave')
 def on_leave(data):
-    username = current_user.username if current_user.is_authenticated else data.get('username', 'Anonymous')
-    team_id = data.get('team_id')
+    # We can try to get data from the manual payload, or fallback to session
+    username = data.get('username') or session.get('username')
+    team_id = data.get('team_id') or session.get('room')
     
-    leave_room(team_id)
-    
-    if team_id in active_users and username in active_users[team_id]:
-        active_users[team_id].remove(username)
+    if team_id:
+        leave_room(team_id)
         
-    emit('update_user_list', {'users': active_users.get(team_id, [])}, room=team_id)
-    emit('status', {'msg': f'{username} has left the room.'}, room=team_id)
+        if team_id in active_users and username in active_users[team_id]:
+            active_users[team_id].remove(username)
+            
+        emit('update_user_list', {'users': active_users.get(team_id, [])}, room=team_id)
+        emit('status', {'msg': f'{username} has left the room.'}, room=team_id)
+
+@socketio.on('disconnect')
+def on_disconnect():
+    # Retrieve the data we saved in the session during 'join'
+    username = session.get('username')
+    team_id = session.get('room')
+
+    if team_id and username:
+        leave_room(team_id)
+        
+        if team_id in active_users and username in active_users[team_id]:
+            # Only try to remove if they are actually in the list
+            try:
+                active_users[team_id].remove(username)
+            except ValueError:
+                pass # User might have already been removed
+            
+        emit('update_user_list', {'users': active_users.get(team_id, [])}, room=team_id)
+        emit('status', {'msg': f'{username} has gone offline.'}, room=team_id)
 
 @socketio.on('send_message')
 def on_send_message(data):
@@ -243,7 +267,8 @@ def on_send_message(data):
     db.session.add(message)
     db.session.commit()
     
-    # 5. Emit SINGLE message with formatted time
+    # 5. Emit SINGLE message to EVERYONE (including sender)
+    # We removed 'include_self=False' so the sender sees the confirmation.
     emit('new_message', {
         'username': message.username,
         'message': message.message,
