@@ -42,13 +42,20 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
+    return render_template('home.html', user=current_user)
+
+@app.route('/toolkit')
+@login_required
+def toolkit():
+    
     themes = Theme.query.order_by(Theme.name).all()
-    return render_template('home.html', themes=themes)
+    
+    return render_template('toolkit.html', themes=themes)
 
 @app.route('/chat')
 @login_required
 def chat():
-    # FIXED: Pointing to 'chat.html' since that is your file name
+    
     return render_template('chat.html', username=current_user.username)
 
 @app.route('/register', methods=['GET', 'POST'])

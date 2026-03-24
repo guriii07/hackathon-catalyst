@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toolkit - Hackathon Catalyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            background-image: url('/static/images/Generated Image October 02, 2025 - 10_05PM.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-color: #0f172a;
+            background-blend-mode: multiply;
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(45, 212, 191, 0.1);
+            border-radius: 1rem;
+            transition: all 0.4s ease-out;
+        }
+
+        .animated-gradient {
+            background: linear-gradient(90deg, #60a5fa, #2dd4bf, #818cf8);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-move 5s ease infinite;
+        }
+
+        @keyframes gradient-move {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .cta-btn {
+            background: #2563eb;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .cta-btn:hover {
+            background: #2dd4bf;
+            color: #0f172a;
+            transform: translateY(-2px);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            background: #2dd4bf;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.6);
+        }
+    </style>
+</head>
+
+<body class="overflow-x-hidden">
+    <nav class="fixed top-0 w-full z-50 py-3 bg-[#0f172a]/80 backdrop-blur-md border-b border-teal-500/10">
+        <div class="container mx-auto flex justify-between items-center px-6">
+            <a href="/" class="text-sm font-bold tracking-widest text-teal-400">HACKATHON CATALYST</a>
+            <div class="flex items-center gap-6">
+                <a href="/" class="text-xs text-slate-300 hover:text-white transition-colors">Home</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/chat" class="px-3 py-1.5 rounded-lg border border-teal-500/50 text-teal-400 hover:bg-teal-500/10 transition-all text-xs">Team Chat</a>
+                    <a href="/logout" class="text-xs font-semibold text-rose-400 hover:text-rose-300">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 pt-32 pb-12 max-w-6xl">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center mb-16">
+            
+            <div class="lg:col-span-6" data-aos="fade-right">
+                <h1 class="text-5xl md:text-6xl font-extrabold animated-gradient mb-4">
+                    Toolkit Engine
+                </h1>
+                <p id="typing-subtitle" class="text-slate-400 text-lg md:text-xl font-light leading-relaxed">
+                </p>
+            </div>
+
+            <div class="lg:col-span-6 bg-slate-900/60 p-8 rounded-2xl border border-teal-500/20 shadow-2xl backdrop-blur-xl" data-aos="fade-left">
+                <h2 class="text-xs uppercase tracking-[0.2em] text-teal-400 font-semibold mb-6 text-center">Event Countdown</h2>
+                
+                <div id="countdown-timer" class="flex justify-around items-center font-mono">
+                    <div class="text-center">
+                        <span id="days" class="text-4xl md:text-5xl font-bold text-white tracking-tighter">00</span>
+                        <p class="text-[11px] text-slate-500 uppercase mt-2">Days</p>
+                    </div>
+                    <span class="text-3xl text-slate-700 pb-6">:</span>
+                    <div class="text-center">
+                        <span id="hours" class="text-4xl md:text-5xl font-bold text-white tracking-tighter">00</span>
+                        <p class="text-[11px] text-slate-500 uppercase mt-2">Hrs</p>
+                    </div>
+                    <span class="text-3xl text-slate-700 pb-6">:</span>
+                    <div class="text-center">
+                        <span id="minutes" class="text-4xl md:text-5xl font-bold text-white tracking-tighter">00</span>
+                        <p class="text-[11px] text-slate-500 uppercase mt-2">Min</p>
+                    </div>
+                    <span class="text-3xl text-slate-700 pb-6">:</span>
+                    <div class="text-center">
+                        <span id="seconds" class="text-4xl md:text-5xl font-bold text-teal-400 animate-pulse">00</span>
+                        <p class="text-[11px] text-teal-500 uppercase mt-2">Sec</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-white/5 flex gap-3 justify-center items-center">
+                    <input type="datetime-local" id="hackathon-date-input" 
+                           class="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-lg p-2 outline-none focus:border-teal-500 transition-all">
+                    <button id="set-timer-btn" class="bg-teal-500/10 hover:bg-teal-500 text-teal-400 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase">Set</button>
+                    <button id="clear-timer-btn" class="bg-rose-900/20 hover:bg-rose-900 text-rose-400 px-3 py-2 rounded-lg transition-all">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <section class="glass-card p-10 mb-12" data-aos="zoom-in">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-end">
+                <div class="md:col-span-4">
+                    <label class="text-sm font-semibold text-slate-300 mb-4 block">1. Select Hackathon Theme</label>
+                    <select id="theme-select" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-4 text-base outline-none focus:border-teal-500 transition-all cursor-pointer">
+                        <option value="" disabled selected>Choose a track...</option>
+                        {% for theme in themes %}
+                            <option value="{{ theme.id }}">{{ theme.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="md:col-span-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <label class="text-sm font-semibold text-slate-300">2. Difficulty Level</label>
+                        <span id="diff-label" class="text-xs font-bold text-teal-400 uppercase tracking-widest">Any</span>
+                    </div>
+                    <div class="pt-2">
+                        <input type="range" id="diff-slider" min="0" max="3" value="0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400">
+                        <div class="flex justify-between text-[11px] text-slate-500 mt-4 font-medium px-1 uppercase tracking-tighter">
+                            <span>Any</span><span>Beginner</span><span>Intermediate</span><span>Advanced</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-3">
+                    <button id="generate-btn" class="cta-btn w-full text-white font-bold py-4 rounded-xl text-sm uppercase tracking-widest shadow-xl">
+                        Generate Ideas
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="results-area" class="mt-12 opacity-0 transition-opacity duration-700">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="ideas-list" class="space-y-4"></div>
+                <div id="details-panel" class="glass-card p-8 sticky top-28 h-fit min-h-[350px] border-t-2 border-t-teal-500/30 shadow-2xl">
+                    <div class="text-center text-slate-500 py-24">
+                        <div class="mb-4 text-3xl opacity-20">⚙️</div>
+                        <p class="text-sm font-light tracking-wide">Select a blueprint from the left to decode the tech stack.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/typeit@8.7.1/dist/index.umd.js"></script>
+    <script>
+        AOS.init({ duration: 800 });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Timer Logic ---
+            let timerInterval;
+            const timerDisplay = { 
+                days: document.getElementById("days"), 
+                hours: document.getElementById("hours"), 
+                minutes: document.getElementById("minutes"), 
+                seconds: document.getElementById("seconds") 
+            };
+
+            function startCountdown(targetDate) {
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = targetDate - now;
+                    
+                    if (distance < 0) {
+                        clearInterval(timerInterval);
+                        document.getElementById("countdown-timer").innerHTML = "<span class='text-teal-400 font-bold text-2xl uppercase tracking-widest'>HACKATHON LIVE</span>";
+                        return;
+                    }
+                    
+                    timerDisplay.days.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                    timerDisplay.hours.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+                    timerDisplay.minutes.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                    timerDisplay.seconds.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                }, 1000);
+            }
+
+            document.getElementById('set-timer-btn').addEventListener('click', () => {
+                const dateValue = document.getElementById('hackathon-date-input').value;
+                if (dateValue) {
+                    const targetDate = new Date(dateValue).getTime();
+                    localStorage.setItem('hackathonTargetDate', targetDate);
+                    startCountdown(targetDate);
+                }
+            });
+
+            document.getElementById('clear-timer-btn').addEventListener('click', () => {
+                localStorage.removeItem('hackathonTargetDate');
+                if (timerInterval) clearInterval(timerInterval);
+                Object.values(timerDisplay).forEach(el => el.innerText = '00');
+            });
+
+            const savedDate = localStorage.getItem('hackathonTargetDate');
+            if (savedDate) { startCountdown(parseInt(savedDate)); }
+
+            // --- Idea Generation Logic ---
+            let dataCache = [];
+            const diffMap = { 0: "Any", 1: "Beginner", 2: "Intermediate", 3: "Advanced" };
+
+            new TypeIt("#typing-subtitle", { 
+                strings: "Precision tools for rapid hackathon deployment.", 
+                speed: 40 
+            }).go();
+
+            const slider = document.getElementById('diff-slider');
+            const label = document.getElementById('diff-label');
+
+            slider.addEventListener('input', (e) => {
+                const val = diffMap[e.target.value];
+                label.innerText = val;
+                label.style.color = val === "Advanced" ? "#f87171" : val === "Beginner" ? "#4ade80" : "#2dd4bf";
+            });
+
+            document.getElementById('generate-btn').addEventListener('click', async () => {
+                const themeId = document.getElementById('theme-select').value;
+                if (!themeId) return alert("Please select a theme.");
+
+                const btn = document.getElementById('generate-btn');
+                btn.innerText = "Processing...";
+                
+                try {
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            theme_id: themeId, 
+                            difficulty: slider.value == 0 ? "" : diffMap[slider.value]
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    dataCache = data;
+                    renderIdeas(data);
+                    document.getElementById('results-area').classList.remove('opacity-0');
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    btn.innerText = "Generate Ideas";
+                }
+            });
+
+            function renderIdeas(items) {
+                const container = document.getElementById('ideas-list');
+                if (!items.length) {
+                    container.innerHTML = `<p class="text-slate-500 italic">No ideas found for this criteria.</p>`;
+                    return;
+                }
+                container.innerHTML = items.map((item, i) => `
+                    <div class="glass-card p-6 cursor-pointer border-l-4 border-l-blue-500 hover:border-l-teal-400" onclick="showKit(${i})">
+                        <h3 class="text-xl font-bold text-white mb-2">${item.idea.title}</h3>
+                        <p class="text-slate-400 text-sm line-clamp-2">${item.idea.description}</p>
+                        <div class="mt-4 flex justify-between items-center">
+                             <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-teal-400 font-bold uppercase">${item.idea.difficulty}</span>
+                             <span class="text-blue-400 text-xs font-bold tracking-widest">VIEW BLUEPRINT →</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            window.showKit = (index) => {
+                const kit = dataCache[index].kit;
+                const panel = document.getElementById('details-panel');
+                panel.innerHTML = `
+                    <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <h2 class="text-2xl font-bold text-teal-400 mb-6 border-b border-white/10 pb-4 uppercase tracking-tighter">Project Blueprint</h2>
+                        <div class="space-y-8">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Technical Stack</h4>
+                                <ul class="space-y-3 text-sm">
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> <span class="text-slate-400">Frontend:</span> <span class="text-white font-medium">${kit.stack.frontend}</span></li>
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> <span class="text-slate-400">Backend:</span> <span class="text-white font-medium">${kit.stack.backend}</span></li>
+                                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span> <span class="text-slate-400">Database:</span> <span class="text-white font-medium">${kit.stack.database}</span></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Winning Strategy</h4>
+                                <div class="bg-teal-500/5 border border-teal-500/20 p-5 rounded-xl">
+                                    <p class="text-sm italic text-teal-100 leading-relaxed">"${kit.tip.tip}"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+        });
+    </script>
+</body>
+</html>
