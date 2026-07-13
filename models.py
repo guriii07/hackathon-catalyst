@@ -21,6 +21,8 @@ class Theme(db.Model):
     
     __table_args__ = {'extend_existing': True}
 
+
+
 class ProjectIdea(db.Model):
     __tablename__ = 'project_idea'
     id = db.Column(db.Integer, primary_key=True)
@@ -34,6 +36,8 @@ class ProjectIdea(db.Model):
     kit = db.relationship('HackathonKit', back_populates='idea', uselist=False, cascade="all, delete-orphan") 
 
     __table_args__ = {'extend_existing': True}
+
+
 
 class TechStack(db.Model):
     __tablename__ = 'tech_stack'
